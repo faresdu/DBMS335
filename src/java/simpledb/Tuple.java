@@ -1,8 +1,6 @@
 package simpledb;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 
 
@@ -16,6 +14,10 @@ public class Tuple implements Serializable {
 	
     private static final long serialVersionUID = 1L;
 
+    private Field[] arrayOfFields;
+    private TupleDesc tupleDesc;
+    private RecordId recordID;
+    
     /**
      * Create a new tuple with the specified schema (type).
      *
@@ -26,7 +28,10 @@ public class Tuple implements Serializable {
     public Tuple(TupleDesc td) {
         // some code goes here
     	//2- assign td and initialize the array of fields
-    
+    	if(td.numFields() > 0) {
+    		this.tupleDesc = td;
+    		arrayOfFields = new Field[td.numFields()];
+    	}
     }
 
     /**
@@ -34,16 +39,16 @@ public class Tuple implements Serializable {
      */
     public TupleDesc getTupleDesc() {
         // some code goes here
-        return null;
+        return tupleDesc;
     }
-
+    
     /**
      * @return The RecordId representing the location of this tuple on disk. May
      *         be null.
      */
     public RecordId getRecordId() {
         // some code goes here
-        return null;
+        return recordID;
     }
 
     /**
@@ -54,7 +59,7 @@ public class Tuple implements Serializable {
      */
     public void setRecordId(RecordId rid) {
         // some code goes here
-    	
+    	this.recordID = rid;
     }
 
     /**
@@ -68,7 +73,8 @@ public class Tuple implements Serializable {
     public void setField(int i, Field f) {
         // some code goes here
     	// 3- set Field of i index to f
-   
+    	if(i >= 0)
+    		this.arrayOfFields[i] = f;
     }
 
     /**
@@ -79,7 +85,13 @@ public class Tuple implements Serializable {
      */
     public Field getField(int i) {
         // some code goes here
-        return null;
+    	if(i >=0) {
+    		if(arrayOfFields[i] == null)
+    			return null;
+    		else
+    			return arrayOfFields[i];
+    	}
+    	return null;
     }
 
     /**
@@ -93,7 +105,16 @@ public class Tuple implements Serializable {
     public String toString() {
     	
         // some code goes here
-        throw new UnsupportedOperationException("Implement this");
+    	
+    	StringBuilder sb = new StringBuilder();
+    	for(int i = 0; i < arrayOfFields.length; i++) {
+    		if(arrayOfFields[i] != null)
+    			sb.append(arrayOfFields[i].toString()+"\t");
+    	}
+    	
+        throw new UnsupportedOperationException(sb.toString());
+        
+        //return sb.toString();
     }
 
     /**
@@ -104,8 +125,25 @@ public class Tuple implements Serializable {
     {
         // some code goes here
     	// 4- return an iterator of fields
-    	return null;
-
+    	
+    	Iterator<Field> iterator = new Iterator<Field>() {
+			
+    		private int index = 0;
+    		
+			@Override
+			public Field next() {
+				// TODO Auto-generated method stub
+				return arrayOfFields[index++];
+			}
+			
+			@Override
+			public boolean hasNext() {
+				// TODO Auto-generated method stub
+				return index <  arrayOfFields.length - 1 && arrayOfFields[index] != null;
+			}
+		};
+    	
+    	return iterator;
     }
 
     /**
@@ -115,5 +153,6 @@ public class Tuple implements Serializable {
     {
         // some code goes here
     	//5- reassign TupleDesc to td
+    	this.tupleDesc = td;
     }
 }
