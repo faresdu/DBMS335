@@ -113,8 +113,6 @@ public class Tuple implements Serializable {
     	}
     	
         throw new UnsupportedOperationException(sb.toString());
-        
-        //return sb.toString();
     }
 
     /**

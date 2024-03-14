@@ -255,22 +255,28 @@ public class TupleDesc implements Serializable {
     public boolean equals(Object o) {
         // some code goes here
     	//9- check type of o 
-    	
-    	 if (this == o) return true;  // Check if the objects are identical
-    	    if (o == null || getClass() != o.getClass()) return false;  // Check if the object is null or of different class
-
-    	    TupleDesc tupleDesc = (TupleDesc) o;  // Cast the object to TupleDesc
-    	    if (list_of_TDItem.size() != tupleDesc.list_of_TDItem.size()) return false;  // Check if the sizes of the lists are equal
-
-    	    // Check if the contents of the lists are equal
-    	    for (int i = 0; i < list_of_TDItem.size(); i++) {
-    	        if (!Objects.equals(list_of_TDItem.get(i), tupleDesc.list_of_TDItem.get(i))) {
-    	            return false;
-    	        }
-    	    }
-
-    	    return true;  // If all checks pass, the objects are equal
-        
+    	if(this == o)
+    		return true;
+    	else {
+    		if(o == null || getClass() != o.getClass())
+    			return false;
+    		else {
+    			TupleDesc newO = (TupleDesc) o;
+    			if (list_of_TDItem.size() != newO.list_of_TDItem.size())
+    				return false;
+    			else {
+    				int i = 0;
+    				while (i < list_of_TDItem.size()) {
+    				    TDItem here = list_of_TDItem.get(i);
+    				    TDItem otherItem = newO.list_of_TDItem.get(i);
+    				    if (!Objects.equals(here.fieldName, otherItem.fieldName) || here.fieldType != otherItem.fieldType) 
+    				        return false;
+    				    i++;
+    				}
+    				return true;
+    			}
+    		}
+    	}
    }
 
     public int hashCode() {
