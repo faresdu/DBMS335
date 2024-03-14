@@ -1,5 +1,5 @@
 ﻿# DBMS335
-This project is made by 7 intelligent students, who they're is kept as a mystery for a long time but it's time to reveal the secret:
+This project is made by 7 intelligent students, who they're is kept as a mystery for a long time but it's time to reveal the secret:<br>
  Fares AlDuhailan<br>
  Abdulaziz AlKhonefer<br>
  Omar AlMayouf<br>
