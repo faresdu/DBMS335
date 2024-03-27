@@ -1,8 +1,10 @@
 package simpledb;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -22,6 +24,7 @@ public class BufferPool {
     /** Bytes per page, including header. */
     private static final int DEFAULT_PAGE_SIZE = 4096;
     private int numPages;
+    private List<Page> bufferPool;
 
     private static int pageSize = DEFAULT_PAGE_SIZE;
     
@@ -38,8 +41,8 @@ public class BufferPool {
      */
     public BufferPool(int numPages) {
         // some code goes here
-    
-    	
+        this.numPages = numPages;
+    	bufferPool = new ArrayList<>(numPages);
     }
     
     public static int getPageSize() {
@@ -78,9 +81,17 @@ public class BufferPool {
     	// 2- If not exist, get its id and get its file from catalog
     	//3- Use DbFile.readPage to read the page using pid
     	// 4- Store the page in the buffer if it is not full.
-    	return null;
-    	
-    	
+        for(Page page : bufferPool)
+            if (page.getId().equals(pid))
+                return page;
+        
+        if (bufferPool.size() >= numPages)
+            throw new DbException("bufferPool is full");
+        
+        DbFile file = Database.getCatalog().getDatabaseFile(pid.getTableId());
+        Page page = file.readPage(pid);
+        bufferPool.add(page);
+    	return page;
     }
 
     /**
@@ -95,6 +106,20 @@ public class BufferPool {
     public  void releasePage(TransactionId tid, PageId pid) {
         // some code goes here
         // not necessary for lab1|lab2
+        for(Page page : bufferPool){
+            if (page.getId().equals(pid)){
+                if (page.isDirty() != null && page.isDirty().equals(tid)) {
+                    try {
+                        flushPage(pid);
+                    } catch (Exception e) {
+                        System.out.println("Exception :: releasePage :: BufferPool");
+                    }
+                    
+                }
+                bufferPool.remove(page);
+                return;
+            }
+        }
     }
 
     /**
@@ -105,6 +130,21 @@ public class BufferPool {
     public void transactionComplete(TransactionId tid) throws IOException {
         // some code goes here
         // not necessary for lab1|lab2
+        for (int i = 0; i < bufferPool.size(); i++) {
+            Page page = bufferPool.get(i);
+
+            if(page.isDirty() != null && page.isDirty().equals(tid)){
+                
+                try {
+                    flushPage(page.getId());
+                } catch (Exception e) {
+                    System.out.println("Exception :: transactionComplete :: BufferPool");
+                }
+
+                bufferPool.remove(i);
+                i--;
+            }
+        }
     }
 
     /** Return true if the specified transaction has a lock on the specified page */
