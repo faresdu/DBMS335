@@ -2,10 +2,7 @@ package simpledb;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * BufferPool manages the reading and writing of pages into memory from
@@ -74,7 +71,7 @@ public class BufferPool {
      * @param pid the ID of the requested page
      * @param perm the requested permissions on the page
      */
-    public  Page getPage(TransactionId tid, PageId pid, Permissions perm)
+    public Page getPage(TransactionId tid, PageId pid, Permissions perm)
         throws TransactionAbortedException, DbException {
         // some code goes here
     	// 1- check if pid exist in the buffer. If it exists return it
@@ -106,20 +103,6 @@ public class BufferPool {
     public  void releasePage(TransactionId tid, PageId pid) {
         // some code goes here
         // not necessary for lab1|lab2
-        for(Page page : bufferPool){
-            if (page.getId().equals(pid)){
-                if (page.isDirty() != null && page.isDirty().equals(tid)) {
-                    try {
-                        flushPage(pid);
-                    } catch (Exception e) {
-                        System.out.println("Exception :: releasePage :: BufferPool");
-                    }
-                    
-                }
-                bufferPool.remove(page);
-                return;
-            }
-        }
     }
 
     /**
@@ -130,21 +113,6 @@ public class BufferPool {
     public void transactionComplete(TransactionId tid) throws IOException {
         // some code goes here
         // not necessary for lab1|lab2
-        for (int i = 0; i < bufferPool.size(); i++) {
-            Page page = bufferPool.get(i);
-
-            if(page.isDirty() != null && page.isDirty().equals(tid)){
-                
-                try {
-                    flushPage(page.getId());
-                } catch (Exception e) {
-                    System.out.println("Exception :: transactionComplete :: BufferPool");
-                }
-
-                bufferPool.remove(i);
-                i--;
-            }
-        }
     }
 
     /** Return true if the specified transaction has a lock on the specified page */
