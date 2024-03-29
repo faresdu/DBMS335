@@ -73,9 +73,7 @@ public class HeapPage implements Page {
 	private int getNumTuples() {
 		// some code goes here
 		// compute the number of tuples based on page size and tuple size
-		return 0;
-	
-
+		return (BufferPool.getPageSize() * 8) / (td.getSize() * 8 + 1);
 	}
 
 	/**
@@ -89,7 +87,7 @@ public class HeapPage implements Page {
 
 		// some code goes here
 		// compute the header size. Be careful, division operation can be tricky.
-		return 0;
+		return (int) Math.ceil(getNumTuples()/8.0);
 
 	}
 
@@ -122,8 +120,7 @@ public class HeapPage implements Page {
 	 */
 	public HeapPageId getId() {
 		// some code goes here
-	
-		 throw new UnsupportedOperationException("implement this");
+		return this.pid;
 	}
 
 	/**
@@ -312,7 +309,11 @@ public class HeapPage implements Page {
 	public int getNumEmptySlots() {
 		// some code goes here
 		// use isSlotUsed() to compute the number of empty slots
-		return 0;
+		int count = 0;
+		for (int i = 0; i < numSlots; i++)
+			if (!isSlotUsed(i)) 
+				count++;
+		return count;
 	}
 
 	/**
@@ -322,8 +323,9 @@ public class HeapPage implements Page {
 		// some code goes here
 		// Each bit of the header array of bytes represent a slot. If bit=1, slot is used
 		// locate the correct bit and check if its 1. Search the Internet to know how.
-		
-		return false;
+		int headerByte = i / 8;
+		int headerBit = i % 8;
+		return (header[headerByte] & (1 << headerBit)) != 0;
 	}
 
 	/**
@@ -351,8 +353,25 @@ public class HeapPage implements Page {
 		 * add tuples of used slots to the list
 		 * return an iterator of the list
 		 */
-    	
-        return null;
-	}
+		return new Iterator<Tuple>() {
+			private int currentIndex = 0;
 
+			@Override
+			public boolean hasNext(){
+				while(currentIndex < tuples.length && !isSlotUsed(currentIndex))
+					currentIndex++;
+				return currentIndex < tuples.length;
+			}
+
+			@Override
+			public Tuple next(){
+				if (hasNext()){
+					Tuple nextTuple = tuples[currentIndex];
+					currentIndex++;
+					return nextTuple;
+				}
+					return null;
+			}
+		};
+	}
 }
