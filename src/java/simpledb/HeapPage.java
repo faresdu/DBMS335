@@ -323,9 +323,9 @@ public class HeapPage implements Page {
 		// some code goes here
 		// Each bit of the header array of bytes represent a slot. If bit=1, slot is used
 		// locate the correct bit and check if its 1. Search the Internet to know how.
-		int headerByte = i / 8;
-		int headerBit = i % 8;
-		return (header[headerByte] & (1 << headerBit)) != 0;
+		int hByte = i / 8;
+		int hBit = i % 8;
+		return (header[hByte] & (1 << hBit)) != 0;
 	}
 
 	/**
@@ -354,20 +354,20 @@ public class HeapPage implements Page {
 		 * return an iterator of the list
 		 */
 		return new Iterator<Tuple>() {
-			private int currentIndex = 0;
+			private int current = 0;
 
 			@Override
 			public boolean hasNext(){
-				while(currentIndex < tuples.length && !isSlotUsed(currentIndex))
-					currentIndex++;
-				return currentIndex < tuples.length;
+				while(current < tuples.length && !isSlotUsed(current))
+				current++;
+				return current < tuples.length;
 			}
 
 			@Override
 			public Tuple next(){
 				if (hasNext()){
-					Tuple nextTuple = tuples[currentIndex];
-					currentIndex++;
+					Tuple nextTuple = tuples[current];
+					current++;
 					return nextTuple;
 				}
 					return null;
