@@ -15,6 +15,8 @@ import java.util.*;
  */
 public class HeapFile implements DbFile {
    // create class attributes to maintain info of HeapFile
+	private File file;
+	private TupleDesc tupleDesc;
 
 	/**
 	 * Constructs a heap file backed by the specified file.
@@ -28,7 +30,8 @@ public class HeapFile implements DbFile {
 		 * create PageIds based on the possible number of pages.
 		 * The number of pages must be computed based on file size and page size in bytes
 		 */
-		
+		this.file = f;
+		this.tupleDesc = td;
 	}
 
 	/**
@@ -38,7 +41,7 @@ public class HeapFile implements DbFile {
 	 */
 	public File getFile() {
 		// some code goes here
-		return null;
+		return this.file;
 	}
 
 	/**
@@ -54,8 +57,7 @@ public class HeapFile implements DbFile {
 		// some code goes here
 		//suggest hashing the absolute file name of the file underlying
 		// the heapfile, i.e. f.getAbsoluteFile().hashCode()
-		
-		 throw new UnsupportedOperationException("implement this");
+		return file.getAbsolutePath().hashCode();
 	}
 
 	/**
@@ -65,8 +67,7 @@ public class HeapFile implements DbFile {
 	 */
 	public TupleDesc getTupleDesc() {
 		// some code goes here
-		
-		 throw new UnsupportedOperationException("implement this");
+		return this.tupleDesc;
 	}
 
 	// see DbFile.java for javadocs
@@ -78,8 +79,15 @@ public class HeapFile implements DbFile {
 		 * Read the file with random access and seek to the specified location of pid
 		 * Fill the buffer and return a new page containing it.
 		 */
-		return null;
-		
+		int size = BufferPool.getPageSize();
+		byte array[] = new byte[size];
+		try (RandomAccessFile raf = new RandomAccessFile(file, "r")) {
+			raf.seek(pid.getPageNumber() * size);
+			raf.readFully(array);
+			return new HeapPage((HeapPageId) pid, array);
+		} catch (IOException e) {
+			throw new IllegalArgumentException();
+		}
 	}
 
 	// see DbFile.java for javadocs
@@ -91,7 +99,7 @@ public class HeapFile implements DbFile {
 		 * check if page is dirty
 		 * Open file with RandomAccessFile
 		 * skipBytes to the appropriate offset
-		 * Write pageData 
+		 * Write pageData
 		 */
 	}
 
@@ -101,8 +109,7 @@ public class HeapFile implements DbFile {
 	public int numPages() {
 		// some code goes here
 		// return the computed number of pages for this file.
-		return 0;
-
+		return (int) Math.ceil(file.length() / BufferPool.getPageSize());
 	}
 
 	// see DbFile.java for javadocs
@@ -144,9 +151,17 @@ public class HeapFile implements DbFile {
 		 * Use the iterator implemented in the pages to get all tuples
 		 * return an iterator that contain all tuples using DbFileIter as wrapper class
 		 */
-		
-	
-		return null;
+		ArrayList<Tuple> tuple = new ArrayList<>();
+		for (int i = 0; i < numPages(); i++)
+			try {
+				PageId pid = new HeapPageId(getId(), i);
+				HeapPage page = (HeapPage) Database.getBufferPool().getPage(tid, pid, Permissions.READ_ONLY);
+				Iterator<Tuple> pageIterator = page.iterator();
+				while (pageIterator.hasNext())
+					tuple.add(pageIterator.next());
+			} catch (Exception e) {
+				// TODO: handle exception
+			}
+		return new DbFileIter(tuple);
 	}
-
 }
