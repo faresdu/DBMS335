@@ -86,17 +86,8 @@ public class TupleDesc implements Serializable {
     public TupleDesc(Type[] typeAr, String[] fieldAr) { 
         // some code goes here
     	//2- populate the list of TDItems
-    	for(int i = 0; i < typeAr.length; i++) {
-    		
-    		String name = fieldAr[i];
-    		
-    		/*correct solution
-    		 * 
-    		 * if(name.equals("") || name == null)
-    		else 
-    			list_of_TDItem.add(new TDItem(typeAr[i], fieldAr[i]));*/
-    		list_of_TDItem.add(new TDItem(typeAr[i], fieldAr[i]));
-    	}	
+    	for(int i = 0; i < typeAr.length; i++) 
+    		list_of_TDItem.add(new TDItem(typeAr[i], fieldAr[i]));	
     }
 
     /**
@@ -135,7 +126,7 @@ public class TupleDesc implements Serializable {
         // some code goes here
     	//4- return field name of item at index i
     	// if i is not valid, throw NoSuchElementException
-    	if(i >=0) {
+    	if(i >=0 && i < list_of_TDItem.size()) {
     		String name = list_of_TDItem.get(i).fieldName;
     		return name;
     	}
@@ -157,7 +148,7 @@ public class TupleDesc implements Serializable {
         // some code goes here
     	//5- return field type of item at index i
     	// if i is not valid, throw NoSuchElementException
-    	if(i >=0) {
+    	if(i >=0 && i < list_of_TDItem.size()) {
     		Type type = list_of_TDItem.get(i).fieldType;
     		return type;
     	}
@@ -180,7 +171,7 @@ public class TupleDesc implements Serializable {
     	// throw NoSuchElementException if not exist
     	
     	for(int i = 0; i < list_of_TDItem.size(); i++)
-    		if(name != null && name.equals(list_of_TDItem.get(i).fieldName)) 
+    		if(name != null && name.equals(list_of_TDItem.get(i).fieldName))
     			return i;
     	
     	throw new NoSuchElementException("Not found");

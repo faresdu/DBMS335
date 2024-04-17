@@ -112,7 +112,7 @@ public class Tuple implements Serializable {
     			sb.append(arrayOfFields[i].toString()+"\t");
     	}
     	
-        throw new UnsupportedOperationException(sb.toString());
+        return sb.toString();
     }
 
     /**
